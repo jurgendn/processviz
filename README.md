@@ -1,2 +1,3 @@
-# processviz
-Repo này viết cho môn stochastics process
+# THƯ VIỆN PROCESSVIZ - PROCESS VISUALIZATION
+
+Sử dụng thư viện này thì dễ thôi các bạn
