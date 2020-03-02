@@ -14,7 +14,7 @@ class MarkovChain:
 
     """
     Constructor function: Generate blank instance
-    Có 2 cách để nhập đồ thị:
+    Có 2 cách để xích:
         - Nhập từ file csv:
             Sử dụng from_file
         - Nhập từ bàn phím:
@@ -36,7 +36,7 @@ class MarkovChain:
             self.state = state
             self.struct = self._generate_struct()
 
-    def from_file(self, path='matrix_input.csv'):
+    def from_file(self, path='input.csv'):
         data = pd.read_csv(path)
         matrix = pd.DataFrame(data)
         data = matrix.values.tolist()
@@ -91,16 +91,19 @@ class MarkovChain:
 
 
     def generate_state_graph(self, n):
-        state, steps = self._get_state_track(n)        
-        legend = self.state
-        for i in range(len(self.pi)):
-            plt.plot(steps, state[i][1:])
-        plt.legend(legend)
-        plt.title("Distribution state vector through time")
-        plt.xlabel("Steps")
-        plt.ylabel("Probability")
-        plt.savefig('img/state_vector.svg', format='svg', dpi=1200)
-        plt.show()
+        if self.pi == None:
+            return "Not found origin state"
+        else:
+            state, steps = self._get_state_track(n)        
+            legend = self.state
+            for i in range(len(self.pi)):
+                plt.plot(steps, state[i][1:])
+            plt.legend(legend)
+            plt.title("Distribution state vector through time")
+            plt.xlabel("Steps")
+            plt.ylabel("Probability")
+            plt.savefig('img/state_vector.svg', format='svg', dpi=1200)
+            plt.show()
 
     def generate_graph(self, n=1):
         if self.state is None:
