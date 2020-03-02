@@ -72,7 +72,7 @@ class MarkovChain:
     Sinh đồ thị, đồ thị được lưu vào thư mục img
     """
 
-    def get_state_vector(self, n):
+    def _get_state_vector(self, n):
         self._get_nth_matrix_state(n)
         self.state_vector = np.matmul(self.pi, self.data)
 

@@ -24,3 +24,20 @@ g.generate_graph()
 This will generate a graph below:
 
 ### Instruction
+
+To import library, use:
+
+```python
+import processviz as pvz
+```
+
+#### Table of Attribute
+
+| attribute name       | use                                     | syntax                                                                                      |
+| -------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------- |
+| MarkovChain          | generate a empty Markov chain           | processviz.MarkovChain()                                                                    |
+| from_stdin           | import data to Markov chain manually    | processviz.from_stdin(state = [(default None)], data = [default None], pi = [default None]) |
+| from_file            | import data to Markov chain from file   | processviz.from_file(path = 'matrix_input.csv')                                             |
+| \_generate_struct    | generate graph structure                |                                                                                             |
+| generate_state_graph | visualize state graph through time      | processviz.generate_state_graph(n = 1)                                                      |
+| generate_graph       | generate process matrix at special step | processviz.generate_graph(n = 1)                                                            |
