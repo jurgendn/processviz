@@ -10,7 +10,7 @@ from matplotlib.image import imread
 import pandas as pd
 
 
-class DiGraph:
+class MarkovChain:
 
     """
     Constructor function: Generate blank instance
@@ -103,7 +103,7 @@ class DiGraph:
         plt.savefig('img/state_vector.svg', format='svg', dpi=1200)
         plt.show()
 
-    def generate_graph(self, n):
+    def generate_graph(self, n=1):
         if self.state is None:
             return "Graph is empty. \n Nothing to show"
         else:

@@ -1,2 +1,2 @@
-import processviz.DiGraph
-from processviz.DiGraph import *
+import processviz.markovchain
+from processviz.markovchain import *
