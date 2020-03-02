@@ -33,13 +33,13 @@ import processviz as pvz
 
 #### Table of Attribute
 
-| attribute name       | use                                     | syntax                                                                                               |
-| -------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| MarkovChain          | generate a empty Markov chain           | `python processviz.MarkovChain()`                                                                    |
-| from_stdin           | import data to Markov chain manually    | `python processviz.from_stdin(state = [(default None)], data = [default None], pi = [default None])` |
-| from_file            | import data to Markov chain from file   | `python processviz.from_file(path = 'matrix_input.csv')`                                             |
-| generate_state_graph | visualize state graph through time      | `python processviz.generate_state_graph(n = 1)`                                                      |
-| generate_graph       | generate process matrix at special step | `python processviz.generate_graph(n = 1)`                                                            |  |
+| attribute name       | use                                     | syntax                                                                                      |
+| -------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------- |
+| MarkovChain          | generate a empty Markov chain           | processviz.MarkovChain()                                                                    |
+| from_stdin           | import data to Markov chain manually    | processviz.from_stdin(state = [(default None)], data = [default None], pi = [default None]) |
+| from_file            | import data to Markov chain from file   | processviz.from_file(path = 'matrix_input.csv')                                             |
+| generate_state_graph | visualize state graph through time      | processviz.generate_state_graph(n = 1)                                                      |
+| generate_graph       | generate process matrix at special step | processviz.generate_graph(n = 1)                                                            |
 
 ### Example
 
