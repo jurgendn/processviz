@@ -43,7 +43,7 @@ import processviz as pvz
 
 ### Example
 
-1. A process with two states is ['A', 'B']. At any time, if the process is in A, there is 0.8 it will stay in A and if it is already in B, there is a chance of 0.4 it will stay B. Visualize the process at 50th step:
+*Example 1*: A process with two states is ['A', 'B']. At any time, if the process is in A, there is 0.8 it will stay in A and if it is already in B, there is a chance of 0.4 it will stay B. Visualize the process at 50th step:
 
 ```python
 import processviz as pvz
@@ -58,7 +58,9 @@ G.generate_graph(50)
 An the result is
 ![Markov graph]()
 
-2. At a arbitrary time, there are 3 supermarkets with proportion [0.2,0.5,0.3] respectively. Also we have a matrix [[0.8,0.1,0.1],[0.07,0.9,0.03],[0.083,0.067,0.85]]. In the future, what is the proportion of each supermarket
+*Example 2*: At a arbitrary time, there are 3 supermarkets with proportion [0.2,0.5,0.3] respectively.
+
+Also we have a matrix [[0.8,0.1,0.1],[0.07,0.9,0.03],[0.083,0.067,0.85]]. In the future, what is the proportion of each supermarket
 
 ```python
 import processviz as pvz
@@ -71,3 +73,18 @@ G.generate_state_graph(100)
 
 And the graph is:
 ![Graph]()
+
+#### Input from data file
+
+To import from data file, please create a `csv` file, for example, by default, data is defined in `input.csv`:
+
+```python
+G.from_file(path)
+```
+Data file:
+
+    - The first line is states, from left to right:
+        * state1, state2,...
+    - The second line is origin state vector:
+        * 0.1, 0.2,....
+    - From the third line, please fill in a square matrix, corresponding to matrix
