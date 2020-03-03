@@ -89,3 +89,9 @@ Data file:
     - The second line is origin state vector:
         * 0.1, 0.2,....
     - From the third line, please fill in a square matrix, corresponding to matrix
+
+---
+
+## Note đối với môn học
+
+Chi tiết về thi giữa kì và cuối kì, xem [tại đây](docs/Remark.md)
