@@ -65,7 +65,7 @@ class MarkovChain:
     """
 
     def _get_nth_matrix_state(self, n):
-        self.data = np.matrix.round(np.linalg.matrix_power(self.P, n), 4)
+        self.data = np.matrix.round(np.linalg.matrix_power(self.P, n), 3)
         self.struct = self._generate_struct()
 
     """
@@ -98,7 +98,7 @@ class MarkovChain:
             legend = self.state
             for i in range(len(self.pi)):
                 plt.plot(steps, state[i][1:])
-            plt.legend(legend)
+            plt.legend(legend, loc = 'best')
             plt.title("Distribution state vector through time")
             plt.xlabel("Steps")
             plt.ylabel("Probability")
