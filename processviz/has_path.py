@@ -7,7 +7,7 @@ def convert_to_adjagecy(state, P):
     return adjagecy_vector
 
 
-def has_path(state, P, source, target):
+def is_connected(state, P, source, target):
     vector = convert_to_adjagecy(state, P)
     visit_status = {i: False for i in state}
     queue = []

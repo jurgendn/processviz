@@ -8,7 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.image import imread
 import pandas as pd
-from has_path import has_path
 
 
 class MarkovChain:
@@ -88,18 +87,15 @@ class MarkovChain:
                 state[j].append(self.state_vector[j])
         return state, steps
 
-    
-
-
     def generate_state_graph(self, n):
         if self.pi == None:
             return "Not found origin state"
         else:
-            state, steps = self._get_state_track(n)        
+            state, steps = self._get_state_track(n)
             legend = self.state
             for i in range(len(self.pi)):
                 plt.plot(steps, state[i][1:])
-            plt.legend(legend, loc = 'best')
+            plt.legend(legend, loc='best')
             plt.title("Distribution state vector through time")
             plt.xlabel("Steps")
             plt.ylabel("Probability")
@@ -122,5 +118,28 @@ class MarkovChain:
             plt.axis("off")
             plt.imshow(img)
 
+
+    def convert_to_adjagecy(self):
+        adjagecy_vector = {i: [] for i in self.state}
+        for i in range(len(self.P)):
+            for j in range(len(self.P)):
+                if self.P[i][j] != 0:
+                    adjagecy_vector[self.state[i]].append(self.state[j])
+        return adjagecy_vector
+
+
     def is_connected(self, source, target):
-        return has_path(self.state, self.P, source, target)
+        vector = self.convert_to_adjagecy()
+        visit_status = {i: False for i in self.state}
+        queue = []
+        queue.append(source)
+        while queue != []:
+            current_state = queue[0]
+            queue.pop(0)
+            visit_status[current_state] = True
+            for s in vector[current_state]:
+                if visit_status[s] == False:
+                    queue.append(s)
+            if target in queue:
+                return True
+        return False
