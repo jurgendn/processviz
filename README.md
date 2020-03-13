@@ -40,6 +40,7 @@ import processviz as pvz
 | from_file            | import data to Markov chain from file   | processviz.from_file(path = 'matrix_input.csv')                                             |
 | generate_state_graph | visualize state graph through time      | processviz.generate_state_graph(n = 1)                                                      |
 | generate_graph       | generate process matrix at special step | processviz.generate_graph(n = 1)                                                            |
+| is_connected         | check if two state is related           | processviz.is_connected(source, target)                                                     |
 
 ### Example
 
