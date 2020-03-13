@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.image import imread
 import pandas as pd
+from has_path import has_path
 
 
 class MarkovChain:
@@ -120,3 +121,6 @@ class MarkovChain:
             img = imread('img/Graph.eps')
             plt.axis("off")
             plt.imshow(img)
+
+    def is_connected(self, source, target):
+        return has_path(self.state, self.P, source, target)
