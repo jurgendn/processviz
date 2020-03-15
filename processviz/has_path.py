@@ -14,8 +14,8 @@ def is_connected(state, P, source, target):
     queue.append(source)
     while queue != []:
         current_state = queue[0]
-        queue.pop(0)
         visit_status[current_state] = True
+        queue.pop(0)
         for s in vector[current_state]:
             if visit_status[s] == False:
                 queue.append(s)

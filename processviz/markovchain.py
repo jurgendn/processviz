@@ -56,8 +56,9 @@ class MarkovChain:
         struct = []
         for i in range(len(self.data)):
             for j in range(len(self.data)):
-                struct.append([self.state[i], self.state[j],
-                               {'label': self.data[i][j]}])
+                if self.data[i][j] > 0:
+                    struct.append([self.state[i], self.state[j],
+                                   {'label': self.data[i][j]}])
         return struct
 
     """
@@ -118,7 +119,6 @@ class MarkovChain:
             plt.axis("off")
             plt.imshow(img)
 
-
     def convert_to_adjagecy(self):
         adjagecy_vector = {i: [] for i in self.state}
         for i in range(len(self.P)):
@@ -127,7 +127,6 @@ class MarkovChain:
                     adjagecy_vector[self.state[i]].append(self.state[j])
         return adjagecy_vector
 
-
     def is_connected(self, source, target):
         vector = self.convert_to_adjagecy()
         visit_status = {i: False for i in self.state}
@@ -135,11 +134,11 @@ class MarkovChain:
         queue.append(source)
         while queue != []:
             current_state = queue[0]
-            queue.pop(0)
             visit_status[current_state] = True
+            queue.pop(0)
             for s in vector[current_state]:
                 if visit_status[s] == False:
                     queue.append(s)
-            if target in queue:
+            if target in queue or visit_status[target] == True:
                 return True
         return False
