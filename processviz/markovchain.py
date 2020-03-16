@@ -142,3 +142,20 @@ class MarkovChain:
             if target in queue or visit_status[target] == True:
                 return True
         return False
+
+    def has_selfloop(self):
+        for i in range(len(self.P)):
+            if self.P[i][i] != 0:
+                return True
+        return False
+    
+    def rank_test(self):
+        P = np.subtract(self.P, np.identity(len(self.P)))
+        if np.linalg.matrix_rank(P) == len(self.P):
+            return True
+        return False
+
+    def is_regular(self):
+        if self.has_selfloop() == True or self.rank_test() == True:
+            return True
+        return False
