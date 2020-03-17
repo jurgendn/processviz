@@ -114,8 +114,9 @@ class MarkovChain:
                                   width=0.5, fontname="Calibri", fontsize=10)
             self.edge_attr.update(color='blue', fontsize=8,
                                   fontname="Calibri", rotate=True)
-            self.draw('img/Graph.eps')
-            img = imread('img/Graph.eps')
+            self.draw('img/Graph.svg')
+            self.draw('img/Graph.png')
+            img = imread('img/Graph.png')
             plt.axis("off")
             plt.imshow(img)
 
