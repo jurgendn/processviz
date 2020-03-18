@@ -10,6 +10,21 @@ from matplotlib.image import imread
 import pandas as pd
 
 
+def _gcd(a, b):
+    if a == 0:
+        return b
+    return _gcd(b % a, int(b/a))
+
+
+def gcd(arr):
+    t = arr[0]
+    if (len(arr) <= 1):
+        return 0
+    for i in range(len(arr)):
+        t = _gcd(t, arr[i])
+    return t
+
+
 class MarkovChain:
 
     """
@@ -149,7 +164,7 @@ class MarkovChain:
             if self.P[i][i] != 0:
                 return True
         return False
-    
+
     def rank_test(self):
         P = np.subtract(self.P, np.identity(len(self.P)))
         if np.linalg.matrix_rank(P) == len(self.P):
@@ -160,3 +175,51 @@ class MarkovChain:
         if self.has_selfloop() == True or self.rank_test() == True:
             return True
         return False
+
+    def cycle_length(self, source):
+        vector = self.convert_to_adjagecy()
+        visit_status = {i: False for i in self.state}
+        step = 0
+        stack = [source]
+        while stack != []:
+            current_state = stack[len(stack)-1]
+            visit_status[current_state] = True
+            stack.pop()
+            step += 1
+            for s in vector[current_state]:
+                if s == source:
+                    return step
+                if visit_status[s] == False:
+                    stack.append(s)
+        return step
+
+    def get_connected_component(self):
+        connected_component = [[]]
+        status = {i: False for i in self.state}
+        while True:
+            counter = 0
+            for i in self.state:
+                for j in self.state:
+                    if (self.is_connected(i, j) and self.is_connected(j, i)):
+                        if status[i] == False:
+                            connected_component[counter].append(i)
+                            status[i] = True
+                        if status[j] == False:
+                            connected_component[counter].append(j)
+                            status[j] = True
+                connected_component.append([])
+                counter += 1
+            if i == self.state[len(self.state) - 1] and j == self.state[len(self.state) - 1]:
+                break
+        connected_component = list(filter(None, connected_component))
+        return connected_component
+
+    def get_period(self, source):
+        component = self.get_connected_component()
+        for container in component:
+            if source in container:
+                break
+        t = []
+        for i in container:
+            t.append(self.cycle_length(i))
+        return gcd(t)
