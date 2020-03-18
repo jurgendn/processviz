@@ -18,8 +18,8 @@ def _gcd(a, b):
 
 def gcd(arr):
     t = arr[0]
-    if (len(arr) <= 1):
-        return 0
+    if (len(arr) == 1):
+        return arr[0]
     for i in range(len(arr)):
         t = _gcd(t, arr[i])
     return t
@@ -153,10 +153,10 @@ class MarkovChain:
             visit_status[current_state] = True
             queue.pop(0)
             for s in vector[current_state]:
+                if target == s:
+                    return True
                 if visit_status[s] == False:
                     queue.append(s)
-            if target in queue or visit_status[target] == True:
-                return True
         return False
 
     def has_selfloop(self):
@@ -214,12 +214,15 @@ class MarkovChain:
         connected_component = list(filter(None, connected_component))
         return connected_component
 
-    def get_period(self, source):
+    def get_period(self, target):
         component = self.get_connected_component()
-        for container in component:
-            if source in container:
+        for sl in component:
+            if target in sl:
                 break
         t = []
-        for i in container:
-            t.append(self.cycle_length(i))
-        return gcd(t)
+        if target not in sl:
+            return 0
+        else:
+            for i in sl:
+                t.append(self.cycle_length(i))
+            return gcd(t)
