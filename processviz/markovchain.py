@@ -217,15 +217,17 @@ class MarkovChain:
         return connected_component
 
     def get_period(self, target):
-        ls = []
-        state = list(self.state)
-        idx = state.index(target)
-        for i in range(1, 2*len(state)):
-            self._get_nth_matrix_state(i)
-            if self.data[idx][idx] > 0:
-                ls.append(i)
-        print(ls)
-        return gcd(ls)
+        component = self.get_connected_component()
+        for sl in component:
+            if target in sl:
+                break
+        t = []
+        if target not in sl:
+            return 0
+        else:
+            for i in sl:
+                t.append(self.cycle_length(i))
+            return gcd(t)
 
     def get_steady_state(self):
         A = np.transpose(self.P)
