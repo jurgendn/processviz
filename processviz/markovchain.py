@@ -13,13 +13,15 @@ import pandas as pd
 def _gcd(a, b):
     if a == 0:
         return b
-    return _gcd(b % a, int(b/a))
+    return _gcd(b % a, a)
 
 
 def gcd(arr):
-    t = arr[0]
+    if len(arr) == 0:
+        return 0
     if (len(arr) == 1):
         return arr[0]
+    t = arr[0]
     for i in range(len(arr)):
         t = _gcd(t, arr[i])
     return t
@@ -215,14 +217,22 @@ class MarkovChain:
         return connected_component
 
     def get_period(self, target):
-        component = self.get_connected_component()
-        for sl in component:
-            if target in sl:
-                break
-        t = []
-        if target not in sl:
-            return 0
-        else:
-            for i in sl:
-                t.append(self.cycle_length(i))
-            return gcd(t)
+        ls = []
+        state = list(self.state)
+        idx = state.index(target)
+        for i in range(1, 2*len(state)):
+            self._get_nth_matrix_state(i)
+            if self.data[idx][idx] > 0:
+                ls.append(i)
+        print(ls)
+        return gcd(ls)
+
+    def get_steady_state(self):
+        A = np.transpose(self.P)
+        A = np.subtract(A, np.identity(len(A)))
+        A = np.ndarray.tolist(A)
+        A.append(np.ndarray.tolist(np.ones(len(A))))
+        b = np.ndarray.tolist(np.transpose(np.zeros(len(A))))
+        b[len(b)-1] = 1
+        # Calc
+        return np.matmul(np.linalg.inv(np.matmul(np.transpose(A), A)), np.matmul(np.transpose(A), b))
