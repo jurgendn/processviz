@@ -182,17 +182,17 @@ class MarkovChain:
         vector = self.convert_to_adjagecy()
         visit_status = {i: False for i in self.state}
         step = 0
-        stack = [source]
-        while stack != []:
-            current_state = stack[len(stack)-1]
+        queue = [source]
+        while queue != []:
+            current_state = queue[0]
             visit_status[current_state] = True
-            stack.pop()
+            queue.pop(0)
             step += 1
             for s in vector[current_state]:
                 if s == source:
                     return step
                 if visit_status[s] == False:
-                    stack.append(s)
+                    queue.append(s)
         return step
 
     def get_connected_component(self):
