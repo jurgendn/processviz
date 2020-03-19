@@ -174,9 +174,15 @@ class MarkovChain:
         return False
 
     def is_regular(self):
-        if self.has_selfloop() == True or self.rank_test() == True:
+        # Check is irreducible
+        component = self.get_connected_component()
+        if len(component) > 1:
+            return False
+        tmp = self.get_period(self.state[0])
+        if tmp == 1:
             return True
         return False
+
 
     def cycle_length(self, source):
         vector = self.convert_to_adjagecy()

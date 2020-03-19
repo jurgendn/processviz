@@ -1,9 +1,9 @@
-P = [[1,2,3],[4,5],[6]]
-
-def get_target(P, target):
-    for sl in P:
-        if target in sl:
-            return sl
+def is_regular(self):
+    # Check is irreducible
+    component = self.get_connected_component()
+    if len(component > 1):
+        return False
+    tmp = self.get_period(self.state[0]):
+    if tmp == 1:
+        return True
     return False
-
-print(get_target(P, 7))
