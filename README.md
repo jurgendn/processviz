@@ -33,14 +33,17 @@ import processviz as pvz
 
 #### Table of Attribute
 
-| attribute name       | use                                     | syntax                                                                                      |
-| -------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------- |
-| MarkovChain          | generate a empty Markov chain           | processviz.MarkovChain()                                                                    |
-| from_stdin           | import data to Markov chain manually    | processviz.from_stdin(state = [(default None)], data = [default None], pi = [default None]) |
-| from_file            | import data to Markov chain from file   | processviz.from_file(path = 'matrix_input.csv')                                             |
-| generate_state_graph | visualize state graph through time      | processviz.generate_state_graph(n = 1)                                                      |
-| generate_graph       | generate process matrix at special step | processviz.generate_graph(n = 1)                                                            |
-| is_connected         | check if two state is related           | processviz.is_connected(source, target)                                                     |
+| attribute name          | use                                     | syntax                                                                                      |
+| ----------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------- |
+| MarkovChain             | generate a empty Markov chain           | processviz.MarkovChain()                                                                    |
+| from_stdin              | import data to Markov chain manually    | processviz.from_stdin(state = [(default None)], data = [default None], pi = [default None]) |
+| from_file               | import data to Markov chain from file   | processviz.from_file(path = 'matrix_input.csv')                                             |
+| generate_state_graph    | visualize state graph through time      | processviz.generate_state_graph(n = 1)                                                      |
+| generate_graph          | generate process matrix at special step | processviz.generate_graph(n = 1)                                                            |
+| is_connected            | check if two state is related           | processviz.is_connected(source, target)                                                     |
+| get_period              | get period of a state                   | processviz.get_period(node)                                                                 |
+| get_connected_component | get connected part of state             | processviz.get_connected_component()                                                        |
+| is_regular              | check if a matrix is regular            | processviz.is_regular()                                                                     |
 
 ### Example
 
