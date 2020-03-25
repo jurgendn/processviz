@@ -161,17 +161,21 @@ class MarkovChain:
                     queue.append(s)
         return False
 
-    def has_selfloop(self):
-        for i in range(len(self.P)):
-            if self.P[i][i] != 0:
-                return True
-        return False
+    # This part is unused -> comment for later use
+    # ------------------------------------------
+    # def has_selfloop(self):
+    #     for i in range(len(self.P)):
+    #         if self.P[i][i] != 0:
+    #             return True
+    #     return False
 
-    def rank_test(self):
-        P = np.subtract(self.P, np.identity(len(self.P)))
-        if np.linalg.matrix_rank(P) == len(self.P):
-            return True
-        return False
+    # def rank_test(self):
+    #     P = np.subtract(self.P, np.identity(len(self.P)))
+    #     if np.linalg.matrix_rank(P) == len(self.P):
+    #         return True
+    #     return False
+
+    # -------------------------------------------
 
     def is_regular(self):
         # Check is irreducible
@@ -183,6 +187,9 @@ class MarkovChain:
             return True
         return False
 
+    # ----------------------------------------------------------
+    #   Get period of a state
+    # ----------------------------------------------------------
 
     def cycle_length(self, source):
         vector = self.convert_to_adjagecy()
@@ -235,6 +242,10 @@ class MarkovChain:
                 t.append(self.cycle_length(i))
             return gcd(t)
 
+    # ----------------------------------------------------
+    #   Get steady state
+    # ----------------------------------------------------
+
     def get_steady_state(self):
         A = np.transpose(self.P)
         A = np.subtract(A, np.identity(len(A)))
@@ -244,3 +255,41 @@ class MarkovChain:
         b[len(b)-1] = 1
         # Calc
         return np.matmul(np.linalg.inv(np.matmul(np.transpose(A), A)), np.matmul(np.transpose(A), b))
+
+    # ----------------------------------------------------
+    #   Get mean time spent
+    # ----------------------------------------------------
+
+    def _get_index(self, state_set):
+        idx_list = []
+        tmp = list(self.state)
+        try:
+            for state in state_set:
+                idx_list.append(tmp.index(state))
+            del tmp
+        except:
+            return "State is not in the state set"
+        return idx_list
+
+    def _get_mean_state_list(self, state_set):
+        tmp = list(self.state)
+        tmp = [state for state in tmp if tmp not in state_set]
+        return tmp
+
+    def get_mean_time(self, target_set):
+        try:
+            idx_list = self._get_index(target_set)
+            state_list = self._get_mean_state_list(target_set)
+            P = self.data
+            P = np.delete(P, idx_list, 0)
+            P = np.delete(P, idx_list, 1)
+            I = np.identity(len(P))
+            A = np.subtract(I, P)
+            b = np.transpose(np.ones(len(P)))
+            x = np.round(np.matmul(np.linalg.inv(A), b), 2)
+            del idx_list, P, I, A, b
+            mean_time = {"Mean time spent of " +
+                         state: x_val for (state, x_val) in zip(state_list, x)}
+            return mean_time
+        except:
+            return "Check your state or matrix"
