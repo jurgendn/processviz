@@ -150,7 +150,7 @@ class MarkovChain:
         visit_status = {i: False for i in self.state}
         queue = []
         queue.append(source)
-        while queue != []:
+        while queue != []:  
             current_state = queue[0]
             visit_status[current_state] = True
             queue.pop(0)
@@ -273,7 +273,7 @@ class MarkovChain:
 
     def _get_mean_state_list(self, state_set):
         tmp = list(self.state)
-        tmp = [state for state in tmp if tmp not in state_set]
+        tmp = [state for state in tmp if state not in state_set]
         return tmp
 
     def get_mean_time(self, target_set):
