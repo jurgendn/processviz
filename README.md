@@ -44,7 +44,7 @@ import processviz as pvz
 | get_period              | get period of a state                                        | processviz.get_period(node)                                                                 |
 | get_connected_component | get connected part of state                                  | processviz.get_connected_component()                                                        |
 | is_regular              | check if a matrix is regular                                 | processviz.is_regular()                                                                     |
-| get_mean_time           | return mean time spent to reach a set of states from a state | processviz/.get_mean_time()                                                                 |
+| get_mean_time           | return mean time spent to reach a set of states from a state | processviz.get_mean_time()                                                                 |
 
 ### Example
 
