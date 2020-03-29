@@ -51,7 +51,7 @@ class MarkovChain:
             self.pi = pi
             self.data = self.P
             self.state = state
-            self.struct = self._generate_struct()
+            self.struct = self.__generate_struct__()
 
     def from_file(self, path='input.csv'):
         data = pd.read_csv(path)
@@ -61,7 +61,7 @@ class MarkovChain:
         self.state = matrix.columns
         self.P = data[1:]
         self.data = self.P
-        self.struct = self._generate_struct()
+        self.struct = self.__generate_struct__()
 
     """
     Sinh ra cấu trúc của đồ thị
@@ -69,7 +69,7 @@ class MarkovChain:
     ['đỉnh 1', 'đỉnh 2', '{'label':label}']
     """
 
-    def _generate_struct(self):
+    def __generate_struct__(self):
         struct = []
         for i in range(len(self.data)):
             for j in range(len(self.data)):
@@ -82,34 +82,34 @@ class MarkovChain:
     Sinh ma trận xác suất chuyển trạng thái của quá trình
     """
 
-    def _get_nth_matrix_state(self, n):
+    def matrix_at(self, n):
         self.data = np.matrix.round(np.linalg.matrix_power(self.P, n), 3)
-        self.struct = self._generate_struct()
+        self.struct = self.__generate_struct__()
 
     """
     Sinh đồ thị, đồ thị được lưu vào thư mục img
     """
 
-    def _get_state_vector(self, n):
-        self._get_nth_matrix_state(n)
+    def __get_state_vector__(self, n):
+        self.matrix_at(n)
         self.state_vector = np.matmul(self.pi, self.data)
 
-    def _get_state_track(self, n):
+    def __get_state_track__(self, n):
         state = np.empty(shape=(len(self.pi), 1))
         state = state.tolist()
         steps = []
         for i in range(n):
             steps.append(i+1)
-            self._get_state_vector(i)
-            for j in range(len(self.pi)):
-                state[j].append(self.state_vector[j])
-        return state, steps
+            self.__get_state_vector__(i)
+            state.append(self.state_vector)
+        state = np.transpose(state)
+        return state.tolist(), steps
 
     def generate_state_graph(self, n):
         if self.pi == None:
             return "Not found origin state"
         else:
-            state, steps = self._get_state_track(n)
+            state, steps = self.__get_state_track__(n)
             legend = self.state
             for i in range(len(self.pi)):
                 plt.plot(steps, state[i][1:])
@@ -124,7 +124,7 @@ class MarkovChain:
         if self.state is None:
             return "Graph is empty. \n Nothing to show"
         else:
-            self._get_nth_matrix_state(n)
+            self.matrix_at(n)
             self = nx.drawing.nx_agraph.to_agraph(nx.DiGraph(self.struct))
             self.layout('dot')
             self.node_attr.update(color='red', height=0.5,
@@ -137,7 +137,7 @@ class MarkovChain:
             plt.axis("off")
             plt.imshow(img)
 
-    def convert_to_adjagecy(self):
+    def __convert_to_adjagecy__(self):
         adjagecy_vector = {i: [] for i in self.state}
         for i in range(len(self.P)):
             for j in range(len(self.P)):
@@ -146,11 +146,11 @@ class MarkovChain:
         return adjagecy_vector
 
     def is_connected(self, source, target):
-        vector = self.convert_to_adjagecy()
+        vector = self.__convert_to_adjagecy__()
         visit_status = {i: False for i in self.state}
         queue = []
         queue.append(source)
-        while queue != []:  
+        while queue != []:
             current_state = queue[0]
             visit_status[current_state] = True
             queue.pop(0)
@@ -191,8 +191,8 @@ class MarkovChain:
     #   Get period of a state
     # ----------------------------------------------------------
 
-    def cycle_length(self, source):
-        vector = self.convert_to_adjagecy()
+    def __cycle_length__(self, source):
+        vector = self.__convert_to_adjagecy__()
         visit_status = {i: False for i in self.state}
         step = 0
         queue = [source]
@@ -239,7 +239,7 @@ class MarkovChain:
             return 0
         else:
             for i in sl:
-                t.append(self.cycle_length(i))
+                t.append(self.__cycle_length__(i))
             return gcd(t)
 
     # ----------------------------------------------------
@@ -260,35 +260,47 @@ class MarkovChain:
     #   Get mean time spent
     # ----------------------------------------------------
 
-    def _get_index(self, state_set):
+    def __get_index__(self, state_set):
         idx_list = []
+        rm_state = self.__get_removed_state__(state_set)
         tmp = list(self.state)
         try:
-            for state in state_set:
+            for state in rm_state:
                 idx_list.append(tmp.index(state))
             del tmp
+            return idx_list
         except:
             return "State is not in the state set"
-        return idx_list
 
-    def _get_mean_state_list(self, state_set):
+    def __get_absoring_state__(self):
+        abr_state = []
+        for i in range((len(self.state))):
+            if self.P[i][i] == 1:
+                abr_state.append(self.state[i])
+        return abr_state
+
+    def __get_removed_state__(self, target_set):
+        return list(set(target_set) | set(self.__get_absoring_state__()))
+
+    def __get_mean_state_list__(self, state_set):
+        rm_state = self.__get_removed_state__(state_set)
         tmp = list(self.state)
-        tmp = [state for state in tmp if state not in state_set]
+        tmp = [state for state in tmp if state not in rm_state]
         return tmp
 
     def get_mean_time(self, target_set):
         try:
-            idx_list = self._get_index(target_set)
-            state_list = self._get_mean_state_list(target_set)
+            idx_list = self.__get_index__(target_set)
+            state_list = self.__get_mean_state_list__(target_set)
             P = self.data
             P = np.delete(P, idx_list, 0)
             P = np.delete(P, idx_list, 1)
             I = np.identity(len(P))
             A = np.subtract(I, P)
             b = np.transpose(np.ones(len(P)))
-            x = np.round(np.matmul(np.linalg.inv(A), b), 2)
+            x = np.round(np.linalg.solve(A, b), 2)
             del idx_list, P, I, A, b
-            mean_time = {"Mean time spent of " +
+            mean_time = {"Mean time spent " +
                          state: x_val for (state, x_val) in zip(state_list, x)}
             return mean_time
         except:
