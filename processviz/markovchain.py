@@ -228,10 +228,14 @@ class MarkovChain:
             state = mt.get_transient_state(self.state, self.P)
             matrix = mt.get_mean_time_transient(self.state, self.P)
             if type == 'absoring':
-                return state, mt.get_mean_time_absoring(self.state, self.P)
+                return state, (mt.get_mean_time_absoring(self.state, self.P)).tolist()
             elif type == 'transient':
-                if source == None or target == None:
+                if source == None and target == None:
                     return state, matrix
+                elif source == None:
+                    return state, (np.transpose(matrix)).tolist()[state.index(target)]
+                elif target == None:
+                    return state, (matrix[state.index(source)]).tolist()
                 else:
                     return state, matrix[state.index(source)][state.index(target)]
         except:

@@ -33,18 +33,20 @@ import processviz as pvz
 
 #### Table of Attribute
 
-| attribute name          | use                                                          | syntax                                                                                      |
-| ----------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| MarkovChain             | generate a empty Markov chain                                | processviz.MarkovChain()                                                                    |
-| from_stdin              | import data to Markov chain manually                         | processviz.from_stdin(state = [(default None)], data = [default None], pi = [default None]) |
-| from_file               | import data to Markov chain from file                        | processviz.from_file(path = 'matrix_input.csv')                                             |
-| generate_state_graph    | visualize state graph through time                           | processviz.generate_state_graph(n = 1)                                                      |
-| generate_graph          | generate process matrix at special step                      | processviz.generate_graph(n = 1)                                                            |
-| is_connected            | check if two state is related                                | processviz.is_connected(source, target)                                                     |
-| get_period              | get period of a state                                        | processviz.get_period(node)                                                                 |
-| get_connected_component | get connected part of state                                  | processviz.get_connected_component()                                                        |
-| is_regular              | check if a matrix is regular                                 | processviz.is_regular()                                                                     |
-| get_mean_time           | return mean time spent to reach a set of states from a state | processviz.get_mean_time()                                                                 |
+| attribute name       | use                                                          | syntax                                                       |
+| -------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| MarkovChain          | generate a empty Markov chain                                | processviz.MarkovChain()                                     |
+| from_stdin           | import data to Markov chain manually                         | processviz.from_stdin(state = [(default None)], data = [default None], pi = [default None]) |
+| from_file            | import data to Markov chain from file                        | processviz.from_file(path = 'matrix_input.csv')              |
+| generate_state_graph | visualize state graph through time                           | processviz.generate_state_graph(n = 1)                       |
+| generate_graph       | generate process matrix at special step                      | processviz.generate_graph(n = 1)                             |
+| has_path             | check if state j can be reached from state i                 | processviz.has_path(source, target)                          |
+| is_connected         | check if two state is related                                | processviz.is_connected(source, target)                      |
+| get_period           | get period of a state                                        | processviz.get_period(node)                                  |
+| classify_state       | classify state into closed sets of state                     | processviz.classify_state()                                  |
+| is_regular           | check if a matrix is regular                                 | processviz.is_regular()                                      |
+| is_irreducible       | chech if chain is irreducible or not                         | processviz.is_irreducible()                                  |
+| get_mean_time        | return mean time spent to reach a set of states from a state | processviz.get_mean_time(source=None, target=None, type=['absoring', 'transient']) |
 
 ### Example
 
