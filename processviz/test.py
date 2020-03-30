@@ -262,10 +262,9 @@ class MarkovChain:
 
     def __get_index__(self, state_set):
         idx_list = []
-        rm_state = self.__get_removed_state__(state_set)
         tmp = list(self.state)
         try:
-            for state in rm_state:
+            for state in state_set:
                 idx_list.append(tmp.index(state))
             del tmp
             return idx_list
@@ -279,29 +278,38 @@ class MarkovChain:
                 abr_state.append(self.state[i])
         return abr_state
 
-    def __get_removed_state__(self, target_set):
-        return list(set(target_set) | set(self.__get_absoring_state__()))
-
     def __get_mean_state_list__(self, state_set):
-        rm_state = self.__get_removed_state__(state_set)
         tmp = list(self.state)
         tmp = [state for state in tmp if state not in rm_state]
         return tmp
 
-    def get_mean_time(self, target_set):
+    def __get_mean_time_absoring__(self):
         try:
-            idx_list = self.__get_index__(target_set)
+            idx_list = self.__get_index__(self.__get_absoring_state__())
             state_list = self.__get_mean_state_list__(target_set)
             P = self.data
             P = np.delete(P, idx_list, 0)
             P = np.delete(P, idx_list, 1)
+            P = np.transpose(P)
             I = np.identity(len(P))
             A = np.subtract(I, P)
             b = np.transpose(np.ones(len(P)))
             x = np.round(np.linalg.solve(A, b), 2)
             del idx_list, P, I, A, b
             mean_time = {"Mean time spent " +
-                            state : x_val for (state, x_val) in zip(state_list, x)}
+                         state: x_val for (state, x_val) in zip(state_list, x)}
             return mean_time
         except:
             return "Check your state or matrix"
+
+    def __get_mean_time_transient__(self, source=None, target=None):
+        idx_list = self.__get_index__(self.__get_absoring_state__())
+        P = self.data
+        P = np.delete(P, idx_list, 0)
+        P = np.delete(P, idx_list, 1)
+        P = np.transpose(P)
+        I = np.identity(len(P))
+        A = np.subtract(I, P)
+        A = A.tolist()
+        if source == None or target == None:
+            return A

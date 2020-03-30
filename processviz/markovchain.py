@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from matplotlib.image import imread
 import pandas as pd
 
+import processviz.algorithm.graph_travel as gt
+
 
 def _gcd(a, b):
     if a == 0:
@@ -137,49 +139,19 @@ class MarkovChain:
             plt.axis("off")
             plt.imshow(img)
 
-    def __convert_to_adjagecy__(self):
-        adjagecy_vector = {i: [] for i in self.state}
-        for i in range(len(self.P)):
-            for j in range(len(self.P)):
-                if self.P[i][j] != 0:
-                    adjagecy_vector[self.state[i]].append(self.state[j])
-        return adjagecy_vector
-
-    def is_connected(self, source, target):
-        vector = self.__convert_to_adjagecy__()
-        visit_status = {i: False for i in self.state}
-        queue = []
-        queue.append(source)
-        while queue != []:
-            current_state = queue[0]
-            visit_status[current_state] = True
-            queue.pop(0)
-            for s in vector[current_state]:
-                if target == s:
-                    return True
-                if visit_status[s] == False:
-                    queue.append(s)
+    def has_path(self, source, target):
+        if gt.BFS(self.state, self.P, source=source, target=target) > 0:
+            return True
         return False
 
-    # This part is unused -> comment for later use
-    # ------------------------------------------
-    # def has_selfloop(self):
-    #     for i in range(len(self.P)):
-    #         if self.P[i][i] != 0:
-    #             return True
-    #     return False
-
-    # def rank_test(self):
-    #     P = np.subtract(self.P, np.identity(len(self.P)))
-    #     if np.linalg.matrix_rank(P) == len(self.P):
-    #         return True
-    #     return False
-
-    # -------------------------------------------
+    def is_connected(self, state1, state2):
+        if self.has_path(state1, state2) and self.has_path(state2, state1):
+            return True
+        return False
 
     def is_regular(self):
         # Check is irreducible
-        component = self.get_connected_component()
+        component = self.classify_state()
         if len(component) > 1:
             return False
         tmp = self.get_period(self.state[0])
@@ -187,28 +159,15 @@ class MarkovChain:
             return True
         return False
 
+    def is_irreducible(self):
+        if len(self.classify_state()) > 1:
+            return False
+        return True
     # ----------------------------------------------------------
     #   Get period of a state
     # ----------------------------------------------------------
 
-    def __cycle_length__(self, source):
-        vector = self.__convert_to_adjagecy__()
-        visit_status = {i: False for i in self.state}
-        step = 0
-        queue = [source]
-        while queue != []:
-            current_state = queue[0]
-            visit_status[current_state] = True
-            queue.pop(0)
-            step += 1
-            for s in vector[current_state]:
-                if s == source:
-                    return step
-                if visit_status[s] == False:
-                    queue.append(s)
-        return step
-
-    def get_connected_component(self):
+    def classify_state(self):
         connected_component = [[]]
         status = {i: False for i in self.state}
         while True:
@@ -228,9 +187,9 @@ class MarkovChain:
                 break
         connected_component = list(filter(None, connected_component))
         return connected_component
-
+    
     def get_period(self, target):
-        component = self.get_connected_component()
+        component = self.classify_state()
         for sl in component:
             if target in sl:
                 break
@@ -239,7 +198,7 @@ class MarkovChain:
             return 0
         else:
             for i in sl:
-                t.append(self.__cycle_length__(i))
+                t.append(gt.BFS(self.state, self.P, i, i))
             return gcd(t)
 
     # ----------------------------------------------------
@@ -262,10 +221,9 @@ class MarkovChain:
 
     def __get_index__(self, state_set):
         idx_list = []
-        rm_state = self.__get_removed_state__(state_set)
         tmp = list(self.state)
         try:
-            for state in rm_state:
+            for state in state_set:
                 idx_list.append(tmp.index(state))
             del tmp
             return idx_list
@@ -279,22 +237,19 @@ class MarkovChain:
                 abr_state.append(self.state[i])
         return abr_state
 
-    def __get_removed_state__(self, target_set):
-        return list(set(target_set) | set(self.__get_absoring_state__()))
-
     def __get_mean_state_list__(self, state_set):
-        rm_state = self.__get_removed_state__(state_set)
         tmp = list(self.state)
-        tmp = [state for state in tmp if state not in rm_state]
+        tmp = [state for state in tmp if state not in state_set]
         return tmp
 
-    def get_mean_time(self, target_set):
+    def __get_mean_time_absoring__(self):
         try:
-            idx_list = self.__get_index__(target_set)
+            idx_list = self.__get_index__(self.__get_absoring_state__())
             state_list = self.__get_mean_state_list__(target_set)
             P = self.data
             P = np.delete(P, idx_list, 0)
             P = np.delete(P, idx_list, 1)
+            P = np.transpose(P)
             I = np.identity(len(P))
             A = np.subtract(I, P)
             b = np.transpose(np.ones(len(P)))
@@ -305,3 +260,15 @@ class MarkovChain:
             return mean_time
         except:
             return "Check your state or matrix"
+
+    def __get_mean_time_transient__(self, source=None, target=None):
+        idx_list = self.__get_index__(self.__get_absoring_state__())
+        P = self.data
+        P = np.delete(P, idx_list, 0)
+        P = np.delete(P, idx_list, 1)
+        P = np.transpose(P)
+        I = np.identity(len(P))
+        A = np.subtract(I, P)
+        A = A.tolist()
+        if source == None or target == None:
+            return A
