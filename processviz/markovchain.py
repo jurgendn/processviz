@@ -10,40 +10,22 @@ from matplotlib.image import imread
 import pandas as pd
 
 import processviz.algorithm.graph_travel as gt
-
-
-def _gcd(a, b):
-    if a == 0:
-        return b
-    return _gcd(b % a, a)
-
-
-def gcd(arr):
-    if len(arr) == 0:
-        return 0
-    if (len(arr) == 1):
-        return arr[0]
-    t = arr[0]
-    for i in range(len(arr)):
-        t = _gcd(t, arr[i])
-    return t
+import processviz.algorithm.mean_time as mt
+import processviz.algorithm.side_algo as sa
 
 
 class MarkovChain:
-
-    """
-    Constructor function: Generate blank instance
-    Có 2 cách để xích:
-        - Nhập từ file csv:
-            Sử dụng from_file
-        - Nhập từ bàn phím:
-            Sử dụng from_stdin
-    """
-
     def __init__(self):
-        self.data = None
-        self.state = None
-        self.struct = None
+        pass
+
+    '''
+    Initialize data of Markov chain:
+        From stdin:
+            Provide state space, transition matrix, initial vector(optional)
+        From file:
+            Import from a csv file.
+            Please include path to file
+    '''
 
     def from_stdin(self, state=None, data=None, pi=None):
         if state == None or data == None:
@@ -51,9 +33,7 @@ class MarkovChain:
         else:
             self.P = data
             self.pi = pi
-            self.data = self.P
             self.state = state
-            self.struct = self.__generate_struct__()
 
     def from_file(self, path='input.csv'):
         data = pd.read_csv(path)
@@ -62,59 +42,61 @@ class MarkovChain:
         self.pi = data[0]
         self.state = matrix.columns
         self.P = data[1:]
-        self.data = self.P
-        self.struct = self.__generate_struct__()
 
-    """
-    Sinh ra cấu trúc của đồ thị
-    Cấu trúc của đồ thị hiện tại như sau:
-    ['đỉnh 1', 'đỉnh 2', '{'label':label}']
-    """
+    '''
+    Generate graph structure:
+    Structure is provided by a list with each element has form:
+    [state1, state2, 'label':value]
+    '''
 
-    def __generate_struct__(self):
+    def __generate_struct__(self, n):
+        matrix = self.matrix_at(n)
         struct = []
-        for i in range(len(self.data)):
-            for j in range(len(self.data)):
-                if self.data[i][j] > 0:
+        for i in range(len(self.state)):
+            for j in range(len(self.state)):
+                if matrix[i][j] > 0:
                     struct.append([self.state[i], self.state[j],
-                                   {'label': self.data[i][j]}])
+                                   {'label': matrix[i][j]}])
+        del matrix
         return struct
 
     """
-    Sinh ma trận xác suất chuyển trạng thái của quá trình
+    Generate transition matrix, state vector at specific step
     """
 
-    def matrix_at(self, n):
-        self.data = np.matrix.round(np.linalg.matrix_power(self.P, n), 3)
-        self.struct = self.__generate_struct__()
+    def matrix_at(self, n=1):
+        return np.matrix.round(np.linalg.matrix_power(self.P, n), 3)
 
-    """
-    Sinh đồ thị, đồ thị được lưu vào thư mục img
-    """
+    def state_vector_at(self, n=1):
+        return list(np.matmul(self.pi, self.matrix_at(n)))
 
-    def __get_state_vector__(self, n):
-        self.matrix_at(n)
-        self.state_vector = np.matmul(self.pi, self.data)
+    '''
+    Generate state distribution graph and transition graph through time
+        __get_state_through_time__:
+            get each state distribution at time
+        generate_state_graph:
+            plot graph from given figures
+        generate_graph:
+            create a graph
+    '''
 
-    def __get_state_track__(self, n):
-        state = np.empty(shape=(len(self.pi), 1))
-        state = state.tolist()
+    def __get_state_through_time__(self, n):
+        state = [[i] for i in self.pi]
         steps = []
         for i in range(n):
             steps.append(i+1)
-            self.__get_state_vector__(i)
-            state.append(self.state_vector)
-        state = np.transpose(state)
-        return state.tolist(), steps
+            state.append(self.state_vector_at(i))
+        state = (np.transpose(state[len(self.P):])).tolist()
+        return state, steps
 
     def generate_state_graph(self, n):
         if self.pi == None:
             return "Not found origin state"
         else:
-            state, steps = self.__get_state_track__(n)
+            state, steps = self.__get_state_through_time__(n)
             legend = self.state
             for i in range(len(self.pi)):
-                plt.plot(steps, state[i][1:])
+                plt.plot(steps, state[i])
             plt.legend(legend, loc='best')
             plt.title("Distribution state vector through time")
             plt.xlabel("Steps")
@@ -127,7 +109,8 @@ class MarkovChain:
             return "Graph is empty. \n Nothing to show"
         else:
             self.matrix_at(n)
-            self = nx.drawing.nx_agraph.to_agraph(nx.DiGraph(self.struct))
+            self = nx.drawing.nx_agraph.to_agraph(
+                nx.DiGraph(self.__generate_struct__(n)))
             self.layout('dot')
             self.node_attr.update(color='red', height=0.5,
                                   width=0.5, fontname="Calibri", fontsize=10)
@@ -139,15 +122,21 @@ class MarkovChain:
             plt.axis("off")
             plt.imshow(img)
 
+    # This part is use for further properties of Markov chain
+
     def has_path(self, source, target):
-        if gt.BFS(self.state, self.P, source=source, target=target) > 0:
-            return True
-        return False
+        '''
+        Check if a state can reach another state.
+        Use BFS to travel through graph
+        For more detail, go to graph_travel in algorithm
+        '''
+        return True if gt.BFS(self.state, self.P, source=source, target=target) > 0 else False
 
     def is_connected(self, state1, state2):
-        if self.has_path(state1, state2) and self.has_path(state2, state1):
-            return True
-        return False
+        '''
+        Check if two state is connected
+        '''
+        return True if self.has_path(state1, state2) and self.has_path(state2, state1) else False
 
     def is_regular(self):
         # Check is irreducible
@@ -155,19 +144,20 @@ class MarkovChain:
         if len(component) > 1:
             return False
         tmp = self.get_period(self.state[0])
-        if tmp == 1:
-            return True
-        return False
+        return True if tmp == 1 else False
 
     def is_irreducible(self):
-        if len(self.classify_state()) > 1:
-            return False
-        return True
-    # ----------------------------------------------------------
-    #   Get period of a state
-    # ----------------------------------------------------------
+        '''
+        Return True if Matrix is reducible
+        False if not
+        '''
+        return True if len(self.classify_state()) > 1 else False
 
     def classify_state(self):
+        '''
+        Classify matrix into closed set of state
+        use BFS
+        '''
         connected_component = [[]]
         status = {i: False for i in self.state}
         while True:
@@ -187,8 +177,11 @@ class MarkovChain:
                 break
         connected_component = list(filter(None, connected_component))
         return connected_component
-    
+
     def get_period(self, target):
+        '''
+        Return period of a state
+        '''
         component = self.classify_state()
         for sl in component:
             if target in sl:
@@ -199,7 +192,7 @@ class MarkovChain:
         else:
             for i in sl:
                 t.append(gt.BFS(self.state, self.P, i, i))
-            return gcd(t)
+            return sa.gcd_list(t)
 
     # ----------------------------------------------------
     #   Get steady state
@@ -218,57 +211,28 @@ class MarkovChain:
     # ----------------------------------------------------
     #   Get mean time spent
     # ----------------------------------------------------
+    '''
+    get_mean_time(source, target, type):
+        if type == 'absoring':
+            return expected time to reach absoring state
+        if type == 'transient':
+            case1: source and target are given:
+                return expected time to reach target from source
+            case2: at least source or target is not provided:
+                return matrix
+        if type is not provided correctly, return "Invalid"
+    '''
 
-    def __get_index__(self, state_set):
-        idx_list = []
-        tmp = list(self.state)
+    def get_mean_time(self, source=None, target=None, type='transient'):
         try:
-            for state in state_set:
-                idx_list.append(tmp.index(state))
-            del tmp
-            return idx_list
+            state = mt.get_transient_state(self.state, self.P)
+            matrix = mt.get_mean_time_transient(self.state, self.P)
+            if type == 'absoring':
+                return state, mt.get_mean_time_absoring(self.state, self.P)
+            elif type == 'transient':
+                if source == None or target == None:
+                    return state, matrix
+                else:
+                    return state, matrix[state.index(source)][state.index(target)]
         except:
-            return "State is not in the state set"
-
-    def __get_absoring_state__(self):
-        abr_state = []
-        for i in range((len(self.state))):
-            if self.P[i][i] == 1:
-                abr_state.append(self.state[i])
-        return abr_state
-
-    def __get_mean_state_list__(self, state_set):
-        tmp = list(self.state)
-        tmp = [state for state in tmp if state not in state_set]
-        return tmp
-
-    def __get_mean_time_absoring__(self):
-        try:
-            idx_list = self.__get_index__(self.__get_absoring_state__())
-            state_list = self.__get_mean_state_list__(target_set)
-            P = self.data
-            P = np.delete(P, idx_list, 0)
-            P = np.delete(P, idx_list, 1)
-            P = np.transpose(P)
-            I = np.identity(len(P))
-            A = np.subtract(I, P)
-            b = np.transpose(np.ones(len(P)))
-            x = np.round(np.linalg.solve(A, b), 2)
-            del idx_list, P, I, A, b
-            mean_time = {"Mean time spent " +
-                         state: x_val for (state, x_val) in zip(state_list, x)}
-            return mean_time
-        except:
-            return "Check your state or matrix"
-
-    def __get_mean_time_transient__(self, source=None, target=None):
-        idx_list = self.__get_index__(self.__get_absoring_state__())
-        P = self.data
-        P = np.delete(P, idx_list, 0)
-        P = np.delete(P, idx_list, 1)
-        P = np.transpose(P)
-        I = np.identity(len(P))
-        A = np.subtract(I, P)
-        A = A.tolist()
-        if source == None or target == None:
-            return A
+            return "Invalid"
