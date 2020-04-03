@@ -9,6 +9,10 @@ import matplotlib.pyplot as plt
 from matplotlib.image import imread
 import pandas as pd
 
+# Error handler
+import sentry_sdk
+sentry_sdk.init("https://31be2fd911834411b1b58755d06e9ac2@sentry.io/2445393")
+
 import processviz.algorithm.graph_travel as gt
 import processviz.algorithm.mean_time as mt
 import processviz.algorithm.side_algo as sa
