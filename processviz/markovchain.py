@@ -3,6 +3,9 @@ Thư viện này viết ra phục vụ cho môn học `Các mô hình ngẫu nhi
 Sử dụng các thư viện `networkx, pandas, numpy, matplotlib`
 """
 
+import processviz.algorithm.side_algo as sa
+import processviz.algorithm.mean_time as mt
+import processviz.algorithm.graph_travel as gt
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,10 +15,6 @@ import pandas as pd
 # Error handler
 import sentry_sdk
 sentry_sdk.init("https://31be2fd911834411b1b58755d06e9ac2@sentry.io/2445393")
-
-import processviz.algorithm.graph_travel as gt
-import processviz.algorithm.mean_time as mt
-import processviz.algorithm.side_algo as sa
 
 
 class MarkovChain:
@@ -93,7 +92,7 @@ class MarkovChain:
         state = (np.transpose(state[len(self.P):])).tolist()
         return state, steps
 
-    def generate_state_graph(self, n):
+    def generate_state_graph(self, n, path='img/state_vector.svg'):
         if self.pi == None:
             return "Not found origin state"
         else:
@@ -105,10 +104,10 @@ class MarkovChain:
             plt.title("Distribution state vector through time")
             plt.xlabel("Steps")
             plt.ylabel("Probability")
-            plt.savefig('img/state_vector.svg', format='svg', dpi=1200)
+            plt.savefig(path, format='svg', dpi=1200)
             plt.show()
 
-    def generate_graph(self, n=1):
+    def generate_graph(self, n=1, path='img/Graph.svg'):
         if self.state is None:
             return "Graph is empty. \n Nothing to show"
         else:
@@ -120,7 +119,7 @@ class MarkovChain:
                                   width=0.5, fontname="Calibri", fontsize=10)
             self.edge_attr.update(color='blue', fontsize=8,
                                   fontname="Calibri", rotate=True)
-            self.draw('img/Graph.svg')
+            self.draw(path)
             self.draw('img/Graph.png')
             img = imread('img/Graph.png')
             plt.axis("off")
@@ -157,36 +156,29 @@ class MarkovChain:
         '''
         return True if len(self.classify_state()) > 1 else False
 
-    def classify_state(self):
-        '''
-        Classify matrix into closed set of state
-        use BFS
-        '''
-        connected_component = [[]]
-        status = {i: False for i in self.state}
-        while True:
-            counter = 0
-            for i in self.state:
-                for j in self.state:
-                    if (self.is_connected(i, j) and self.is_connected(j, i)):
-                        if status[i] == False:
-                            connected_component[counter].append(i)
-                            status[i] = True
-                        if status[j] == False:
-                            connected_component[counter].append(j)
-                            status[j] = True
-                connected_component.append([])
-                counter += 1
-            if i == self.state[len(self.state) - 1] and j == self.state[len(self.state) - 1]:
-                break
-        connected_component = list(filter(None, connected_component))
-        return connected_component
+    def get_communicating_class(self):
+        return gt.get_communicating_class(self.state, self.P)
+
+    def is_recurrent(self, state=None):
+        if state != None:
+            containing_class = gt.get_containing_class(
+                self.state, self.P, state)
+            if containing_class == False:
+                return False
+            else:
+                state_vector = gt.convert_to_adjacency(self.state, self.P)
+                union = set([])
+                for i in containing_class:
+                    union = union.union(set(state_vector[i]))
+                return True if union == set(containing_class) else False
+        else:
+            return "No state is given"
 
     def get_period(self, target):
         '''
         Return period of a state
         '''
-        component = self.classify_state()
+        component = self.get_communicating_class()
         for sl in component:
             if target in sl:
                 break
