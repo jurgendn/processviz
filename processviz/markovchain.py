@@ -143,18 +143,17 @@ class MarkovChain:
 
     def is_regular(self):
         # Check is irreducible
-        component = self.classify_state()
+        component = self.get_communicating_class()
         if len(component) > 1:
             return False
-        tmp = self.get_period(self.state[0])
-        return True if tmp == 1 else False
+        return True if self.get_period(self.state[0]) == 1 else 0
 
     def is_irreducible(self):
         '''
         Return True if Matrix is reducible
         False if not
         '''
-        return True if len(self.classify_state()) > 1 else False
+        return True if len(self.get_communicating_class()) > 1 else False
 
     def get_communicating_class(self):
         return gt.get_communicating_class(self.state, self.P)

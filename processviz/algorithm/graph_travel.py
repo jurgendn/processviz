@@ -53,12 +53,3 @@ def get_containing_class(s, P, state):
         if state in cl:
             return cl
     return False
-
-
-def is_recurrent(s, P, state):
-    containing_class = get_containing_class(s, P, state)
-    state_vector = convert_to_adjacency(s, P)
-    union = set([])
-    for i in containing_class:
-        union = union.union(set(state_vector[i]))
-    return True if union == set(containing_class) else False

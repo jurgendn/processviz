@@ -62,7 +62,7 @@ G = pvz.MarkovChain()
 G.from_stdin(state = ['A', 'B', 'C'], data = [[0.8,0.1,0.1],[0.07,0.9,0.03],[0.083,0.067,0.85]], pi = [0.2,0.5,0.3])
 
 '''
-Visualize Markov chain and relationships in network
+# Visualize Markov chain and relationships in network
 >>> G.generate_graph()
 >>> Graph
 
